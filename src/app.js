@@ -7,6 +7,7 @@ const exphbs = require('express-handlebars');
 // Initializacions
 
 const app = express();
+require('./database');
 
 
 //Setting
@@ -23,5 +24,24 @@ app.set('viewa engine','.hbs');
 
 //Middel Funciones que se ejecutan antes de llegar a la ruta 
 
-app.use()
+app.use(morgan('dev')); //Para que envie y reciba mensajes cortos por la consola
+app.use(express.json());
+app.use(express.urlencoded({extends :false}));
+const storage = multer.diskStorage({
+    destination :path.join(__dirname,'public/uploads'),
+    filename : (req,file ,cb)=> {
+        cb(null,new Date().getTime() + path.extname(file.originalname));
+    }
+})
+//Configuro el destino de la imagen y el tamaño
+//Filename configuro el ID de la imagen con el metodo de fecha y milisegundo y el origen de la imagen
+app.use(multer({storage : storage}).single('image'));
+//Procesa que cada vez que enviamos datos al servidor, se envia la imagen, esta la interpreta y la coloca dentro del servidor
 //Para obtener la informacion que se suba 
+
+
+//ROUTES 
+
+app.use(require('./routes/index'));
+
+module.exports = app;
